@@ -5,8 +5,11 @@ import SpotlightContainerDecorator from '@enact/spotlight/SpotlightContainerDeco
 import Image from '@enact/sandstone/Image';
 import $L from '@enact/i18n/$L';
 import {KEYS} from '../../utils/keys';
+import {registerThemeSheet} from '../../theme/themeOverrides';
 
 import css from './PersonDetailShell.module.less';
+
+registerThemeSheet('personShell', css);
 
 const SpottableDiv = Spottable('div');
 const TabsContainer = SpotlightContainerDecorator({enterTo: 'last-focused'}, 'div');

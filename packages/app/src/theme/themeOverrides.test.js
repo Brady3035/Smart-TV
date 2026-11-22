@@ -157,6 +157,53 @@ describe('buildThemeOverrideCss', () => {
 		}
 	});
 
+	it('sets what goes inside the dialogs in the panel\'s colours instead of white', () => {
+		registerThemeSheet('manageRequests', {requester: 'requester'});
+		registerThemeSheet('reportIssue', {radio: 'radio', radioOn: 'radioOn', messageLabel: 'messageLabel', messageField: 'messageField'});
+		registerThemeSheet('seerrBrowseDialogs', {panel: 'sbPanel', subtitle: 'sbSubtitle', tileLabel: 'tileLabel', divider: 'sbDivider', sectionHeader: 'sectionHeader', checkLabel: 'checkLabel', expander: 'expander', tile: 'tile', radio: 'sbRadio', check: 'check', markOn: 'markOn', radioDot: 'radioDot', checkGlyph: 'checkGlyph', tileLabelOn: 'tileLabelOn', sortArrow: 'sortArrow', expanderCount: 'expanderCount', clear: 'clear'});
+		registerThemeSheet('moonbaseDialog', {text: 'mbText', featureIcon: 'featureIcon', qrHint: 'mbQrHint', actionIcon: 'actionIcon', actionLabel: 'actionLabel', linkLine: 'linkLine', statusText: 'statusText', statusFailed: 'statusFailed', spinner: 'mbSpinner', divider: 'mbDivider', action: 'mbAction'});
+		registerThemeSheet('episodeBrowser', {episode: 'episode', message: 'message', episodeCurrent: 'episodeCurrent', thumb: 'thumb', thumbPlaceholder: 'thumbPlaceholder', progress: 'progress', number: 'number', title: 'epTitle', overview: 'epOverview'});
+		for (const id of ['neon_pulse', '8bit_hero']) {
+			const theme = resolveThemeById(id);
+			const onSurface = toCssColor(theme.colors.onSurface);
+			const os = (a) => `rgba(${toRgbTriplet(theme.colors.onSurface)}, ${a})`;
+			const prefix = `html[data-theme-id='${id}'][data-theme-id]`;
+			const lines = buildThemeOverrideCss(theme).split('\n');
+			expect(lines).toContain(`${prefix} .requester { color: ${onSurface}; }`);
+			expect(lines).toContain(`${prefix} .continuingText, ${prefix} .matchTitle { color: ${onSurface}; }`);
+			expect(lines).toContain(`${prefix} .chip { background: ${os(0.08)}; color: ${os(0.7)}; }`);
+			expect(lines).toContain(`${prefix} .messageLabel { color: ${os(0.7)}; }`);
+			expect(lines).toContain(`${prefix} .optionLabel { color: ${onSurface}; }`);
+			expect(lines).toContain(`${prefix} .epTitle { color: ${onSurface}; }`);
+			expect(lines).toContain(`${prefix} .linkLine, ${prefix} .statusText, ${prefix} .actionLabel { color: ${onSurface}; }`);
+			expect(lines).toContain(`${prefix} .sbPanel { background: rgba(${toRgbTriplet(theme.colors.surface)}, 0.9); color: ${onSurface}; }`);
+			// The divider is clipped to its content box, which a background shorthand would reset
+			expect(lines).toContain(`${prefix} .sbDivider { background-color: ${os(0.078)}; }`);
+			expect(lines.some((line) => line.includes('.cardTitle') && line.includes(`color: ${onSurface};`))).toBe(true);
+			// The QR code needs its light box to be read, so it isn't themed
+			expect(lines.some((line) => line.includes('.qrBox'))).toBe(false);
+			// Older engines drop a rule over a selector they can't read, so each placeholder rule stands alone
+			expect(lines).toContain(`${prefix} .messageField input::placeholder { color: ${os(0.54)}; }`);
+		}
+	});
+
+	it('rings the person screens in the theme: Seerr\'s in the accent, the library\'s in the focus colour', () => {
+		registerThemeSheet('personShell', {page: 'page', name: 'name', personImage: 'personImage', noImage: 'noImage', metaRow: 'metaRow', meta: 'meta', overview: 'psOverview', favoriteBtn: 'favoriteBtn', tab: 'tab', overviewToggle: 'psToggle', tabActive: 'tabActive'});
+		for (const id of ['neon_pulse', '8bit_hero', 'glass']) {
+			const theme = resolveThemeById(id);
+			const prefix = `html[data-theme-id='${id}'][data-theme-id]`;
+			const focus = resolveFocusBorderColor(theme, '');
+			const lines = buildThemeOverrideCss(theme).split('\n');
+			expect(lines).toContain(`${prefix} .personImage, ${prefix} .noImage { border-color: ${toCssColor(theme.colors.accent)}; }`);
+			expect(lines).toContain(`${prefix} .personPhoto, ${prefix} .personPhotoPlaceholder { border-color: ${focus}; }`);
+			// The open tab's label stays readable on the focus colour, white on Glass included
+			const tab = lines.find((line) => line.startsWith(`${prefix} .personTabActive {`));
+			const ink = tab.match(/color: ([^;]+);/)[1];
+			const inkHex = ink === '#fff' ? '#FFFFFFFF' : (ink.startsWith('rgba(0, 0, 0') ? '#FF000000' : '#FFFFFFFF');
+			expect(contrastRatio(theme.borders.focusBorder.color, inkHex)).toBeGreaterThanOrEqual(MIN_BUTTON_CONTRAST);
+		}
+	});
+
 	it('keeps Switch User text light on its dark scrim when the theme\'s onSurface is dark', () => {
 		const moonfin = resolveThemeById('moonfin');
 		const theme = {...moonfin, colors: {...moonfin.colors, onSurface: '#FF1A1C2C'}};

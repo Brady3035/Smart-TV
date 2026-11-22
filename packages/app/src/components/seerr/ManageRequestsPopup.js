@@ -3,8 +3,11 @@ import $L from '@enact/i18n/$L';
 
 import CoreDialog from '../CoreDialog';
 import {SeerrButtonRow, SeerrDialogButton} from './SeerrDialogControls';
+import {registerThemeSheet} from '../../theme/themeOverrides';
 
 import css from './ManageRequestsPopup.module.less';
+
+registerThemeSheet('manageRequests', css);
 
 // Approving or declining the requests waiting on this title, for a viewer allowed to moderate.
 

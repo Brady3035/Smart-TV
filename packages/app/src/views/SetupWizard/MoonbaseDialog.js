@@ -7,8 +7,11 @@ import CoreDialog from '../../components/CoreDialog';
 import {MaterialIcon} from '../../components/icons/materialIcons';
 import {drawQrCode} from '../../utils/qrCanvas';
 import {installMoonbase, moonbaseFeatures, moonbaseGuideUrl} from './moonbaseInstall';
+import {registerThemeSheet} from '../../theme/themeOverrides';
 
 import css from './MoonbaseDialog.module.less';
+
+registerThemeSheet('moonbaseDialog', css);
 
 const SpottableDiv = Spottable('div');
 

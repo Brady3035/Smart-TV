@@ -11,6 +11,7 @@
 
 import {
 	contrastRatio,
+	isValidHexColor,
 	DEFAULT_ERROR_COLOR,
 	inkOn,
 	MIN_BUTTON_CONTRAST,
@@ -78,6 +79,8 @@ import playbackInfoCss from '../views/Player/PlaybackInfoModal.module.less';
 import accountCss from '../components/AccountModal/AccountModal.module.less';
 import carouselCss from '../components/ProfileCarousel/ProfileCarousel.module.less';
 import coreDialogCss from '../components/CoreDialog/CoreDialog.module.less';
+import serverMessagesCss from '../components/ServerMessagesDialog/ServerMessagesDialog.module.less';
+import updateNotificationCss from '../components/UpdateNotification/UpdateNotification.module.less';
 
 const STYLE_ELEMENT_ID = 'moonfin-theme-overrides';
 const LATER_ELEMENT_ID = 'moonfin-theme-overrides-later';
@@ -451,6 +454,22 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	rule(`.${detailsCss.actionBtn}`, `background: ${os(0.1)}; border-color: ${os(0.2)}; color: ${onBackground};`);
 	rule(`.${detailsCss.actionBtn}:hover, .${detailsCss.actionBtn}:focus`, `background: ${accentA(0.3)}; border-color: ${focusColor};`);
 	rule(`.${detailsCss.personActionBtn}:focus`, `border-color: ${focusColor};`);
+	// The library Person screen: the portrait ring and the open tab in the focus colour, like its stylesheet
+	const focusHex = isValidHexColor(options.focusBorderColor) ? options.focusBorderColor : b.focusBorder.color;
+	const ob = (a) => `rgba(${toRgbTriplet(c.onBackground)}, ${a})`;
+	rule(`.${detailsCss.personPhoto}, .${detailsCss.personPhotoPlaceholder}`, `border-color: ${focusColor};`);
+	rule(`.${detailsCss.personPhotoPlaceholder}`, `background: ${ob(0.08)};`);
+	rule(`.${detailsCss.personPhotoPlaceholder} svg`, `color: ${ob(0.25)};`);
+	rule(`.${detailsCss.personInfo} .${detailsCss.overview}`, `color: ${ob(0.85)};`);
+	rule(`.${detailsCss.overviewToggle}:focus`, `background-color: ${ob(0.08)};`);
+	rule(`.${detailsCss.overviewToggleHint}`, `color: ${focusColor};`);
+	rule(`.${detailsCss.personActionBtn}`, `background: ${ob(0.08)}; color: ${onBackground};`);
+	rule(`.${detailsCss.personActionBtn}:focus`, `background: ${accentA(0.3)};`);
+	rule(`.${detailsCss.personTab}`, `color: ${ob(0.7)}; background: ${ob(0.06)};`);
+	rule(`.${detailsCss.personTab}:focus`, `background-color: ${ob(0.12)};`);
+	// White where it can be read on the fill, else dark or light ink by how bright the fill is
+	const tabInk = contrastRatio(focusHex, '#FFFFFFFF') >= MIN_BUTTON_CONTRAST ? '#fff' : `rgba(${inkOn(focusHex)}, 0.87)`;
+	rule(`.${detailsCss.personTabActive}`, `color: ${tabInk}; background: ${focusColor};`);
 	rule(`.${detailsCss.toast}`, `background: ${surfaceA(0.9)}; color: ${onBackground}; border-color: ${os(0.12)};`);
 	rule(`.${detailsCss.trailerCloseBtn}`, `background: ${os(0.15)}; color: ${onBackground};`);
 
@@ -837,7 +856,10 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	});
 
 	// Focus rings on the screens that load on demand
-	const {player, playerOverlays, episodeBrowser, genreBrowse, seerrDiscover, seerrBrowse, seerrPosterCard, calendar} = lazySheets;
+	const {
+		player, playerOverlays, episodeBrowser, genreBrowse, seerrDiscover, seerrBrowse, seerrPosterCard, calendar,
+		personShell, manageRequests, reportIssue, seerrBrowseDialogs, moonbaseDialog
+	} = lazySheets;
 	const ring = (sheet, names, states) => names.flatMap((name) => states.map((state) => `.${sheet[name]}${state}`)).join(', ');
 	if (player) {
 		rule(ring(player, ['liveBtn', 'chapterItem'], [':hover', ':focus']), `border-color: ${focusColor};`);
@@ -861,6 +883,17 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	}
 	if (episodeBrowser) {
 		rule(ring(episodeBrowser, ['episode'], [':hover', ':focus']), `border-color: ${focusColor};`);
+		// The list sits on the shared dialog panel, so its text follows that panel's colours
+		rule(`.${episodeBrowser.message}`, `color: ${os(0.7)};`);
+		rule(`.${episodeBrowser.episode}`, `background: ${os(0.06)};`);
+		rule(ring(episodeBrowser, ['episode'], [':hover', ':focus']), `background: ${accentA(0.3)};`);
+		rule(`.${episodeBrowser.episodeCurrent}`, `background: ${accentA(0.18)}; border-color: ${accentA(0.5)};`);
+		rule(`.${episodeBrowser.thumb}`, `background: ${os(0.08)};`);
+		rule(`.${episodeBrowser.thumbPlaceholder}`, `color: ${os(0.3)};`);
+		rule(`.${episodeBrowser.progress}`, `background: ${accent};`);
+		rule(`.${episodeBrowser.number}`, `color: ${os(0.6)};`);
+		rule(`.${episodeBrowser.title}`, `color: ${onSurface};`);
+		rule(`.${episodeBrowser.overview}`, `color: ${os(0.72)};`);
 	}
 	if (genreBrowse) {
 		rule(ring(genreBrowse, ['filterButton', 'sortButton', 'letterButton'], [':focus']), `border-color: ${focusColor};`);
@@ -879,6 +912,57 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	if (calendar) {
 		rule(`.${calendar.row}:focus::after, .${calendar.card}:focus::after, .${calendar.cell}:focus::after`, `border-color: ${focusColor};`);
 		rule(`.${calendar.button}:focus, .${calendar.tab}:focus`, `background: ${onSurface} !important; border-color: ${focusColor}; color: ${inkOn(c.onSurface) === '0, 0, 0' ? 'rgba(0, 0, 0, 0.87)' : '#fff'};`);
+	}
+	// The Seerr person screen: the portrait ring and the tabs in the theme's accent
+	if (personShell) {
+		const ps = personShell;
+		rule(`.${ps.page}`, `background: ${background};`);
+		rule(`.${ps.name}`, `color: ${onBackground};`);
+		rule(`.${ps.personImage}, .${ps.noImage}`, `border-color: ${accent};`);
+		rule(`.${ps.noImage}`, `background: ${surfaceVariant}; color: ${os(0.45)};`);
+		rule(`.${ps.metaRow} > * + *::before`, `color: ${os(0.45)};`);
+		rule(`.${ps.meta}, .${ps.overview}, .${ps.favoriteBtn}, .${ps.tab}`, `color: ${os(0.7)};`);
+		rule(`.${ps.overview}:focus, .${ps.favoriteBtn}:focus, .${ps.tab}:focus`, `border-color: ${accentA(0.5)};`);
+		rule(`.${ps.overviewToggle}`, `color: ${accentA(0.8)};`);
+		rule(`.${ps.tabActive}`, `color: ${onBackground}; background: ${accentA(0.2)};`);
+	}
+	// Dialog bodies on screens that load on demand, in the dialog panel's colours like the shared ones
+	if (manageRequests) {
+		rule(`.${manageRequests.requester}`, `color: ${onSurface};`);
+	}
+	if (reportIssue) {
+		rule(`.${reportIssue.radio}`, `color: ${os(0.38)};`);
+		rule(`.${reportIssue.radioOn}`, `color: ${accent};`);
+		rule(`.${reportIssue.messageLabel}`, `color: ${os(0.7)};`);
+		rule(`.${reportIssue.messageField}`, `background: ${inputBackground}; color: ${onSurface};`);
+		rule(`.${reportIssue.messageField}:focus, .${reportIssue.messageField}[data-focused]`, `border-color: ${accent};`);
+		// Older engines drop a whole rule over one selector they can't read, so these stand alone
+		rule(`.${reportIssue.messageField} input::-webkit-input-placeholder`, `color: ${os(0.54)};`);
+		rule(`.${reportIssue.messageField} input::placeholder`, `color: ${os(0.54)};`);
+	}
+	if (seerrBrowseDialogs) {
+		const sb = seerrBrowseDialogs;
+		const downloading = toCssColor(theme.semantic.statusDownloading);
+		rule(`.${sb.panel}`, `background: ${surfaceA(0.9)}; color: ${onSurface};`);
+		rule(`.${sb.subtitle}, .${sb.tileLabel}`, `color: ${os(0.7)};`);
+		// Colour only, so the divider keeps its content-box clip
+		rule(`.${sb.divider}`, `background-color: ${os(0.078)};`);
+		rule(`.${sb.sectionHeader}, .${sb.checkLabel}, .${sb.expander}`, `color: ${os(0.72)};`);
+		rule(`.${sb.tile}:focus`, `background: ${os(0.12)};`);
+		rule(`.${sb.radio}, .${sb.check}`, `border-color: ${os(0.5)};`);
+		rule(`.${sb.markOn}`, `border-color: ${downloading}; background: ${downloading};`);
+		rule(`.${sb.radioDot}`, `background: ${onSurface};`);
+		rule(`.${sb.checkGlyph}, .${sb.tileLabelOn}`, `color: ${onSurface};`);
+		rule(`.${sb.sortArrow}, .${sb.expanderCount}, .${sb.clear}`, `color: ${downloading};`);
+	}
+	if (moonbaseDialog) {
+		const mb = moonbaseDialog;
+		rule(`.${mb.text}, .${mb.featureIcon}, .${mb.qrHint}, .${mb.actionIcon}`, `color: ${os(0.7)};`);
+		rule(`.${mb.linkLine}, .${mb.statusText}, .${mb.actionLabel}`, `color: ${onSurface};`);
+		rule(`.${mb.statusFailed}`, `color: ${error};`);
+		rule(`.${mb.spinner}`, `border-color: ${os(0.25)}; border-top-color: ${onSurface};`);
+		rule(`.${mb.divider}`, `background: ${os(0.08)};`);
+		rule(`.${mb.action}:focus`, `background: ${os(0.12)};`);
 	}
 	keep = !lazyOnly;
 
@@ -928,6 +1012,43 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	if (theme.textGlow.length) {
 		rule(`.${cd.title}, .${cd.alertTitle}`, `color: ${accent}; text-shadow: ${textGlow}; letter-spacing: 0.4px;`);
 	}
+	// What goes inside those dialogs, set in the panel's colours too instead of white
+	const sr = seerrRequestCss;
+	const availableRgb = toRgbTriplet(theme.semantic.statusAvailable);
+	rule(`.${sr.continuing}`, `border-color: rgba(${availableRgb}, 0.4); background: rgba(${availableRgb}, 0.15);`);
+	rule(`.${sr.continuingIcon}, .${sr.chipCheck}`, `color: ${statusAvailable};`);
+	rule(`.${sr.continuingText}, .${sr.matchTitle}`, `color: ${onSurface};`);
+	rule(`.${sr.chip}`, `background: ${os(0.08)}; color: ${os(0.7)};`);
+	rule(`.${sr.chip}:focus`, `box-shadow: inset 0 0 0 ${rem(2)} ${accent};`);
+	rule(`.${sr.chipSelected}, .${sr.chipSelected}.${sr.chipDisabled}`, `background: ${accent}; color: ${badgeInk};`);
+	rule(`.${sr.chipDisabled}`, `background: ${os(0.04)}; color: ${os(0.38)};`);
+	rule(`.${sr.matchNote}, .${sr.advancedHeader}`, `color: ${os(0.7)};`);
+	rule(`.${sr.match}`, `border-color: ${os(0.12)}; background: ${os(0.06)};`);
+	rule(`.${sr.matchPoster}`, `background: ${os(0.1)};`);
+	rule(`.${sr.matchYear}, .${sr.matchOverview}, .${sr.advancedEmpty}`, `color: ${os(0.54)};`);
+	rule(`.${sr.spinner}`, `border-top-color: ${accent};`);
+	// Server messages, also the markdown in reviews. The QR box stays white so the code can be read.
+	const sm = serverMessagesCss;
+	rule(`.${sm.empty}`, `color: ${os(0.6)};`);
+	rule(`.${sm.card}`, `background: rgba(${toRgbTriplet(c.surfaceVariant)}, 0.95);`);
+	rule(`.${sm.cardTitle}, .${sm.body} strong, .${sm.h1}, .${sm.h2}, .${sm.h3}`, `color: ${onSurface};`);
+	rule(`.${sm.cardDate}`, `color: ${os(0.5)};`);
+	rule(`.${sm.preview}, .${sm.body}`, `color: ${os(0.75)};`);
+	rule(`.${sm.textButton}`, `background: ${accentA(0.16)}; color: ${onSurface};`);
+	rule(`.${sm.textButton}:focus`, `background: ${accent}; color: ${badgeInk};`);
+	rule(`.${sm.quote}`, `border-left-color: ${os(0.25)};`);
+	rule(`.${sm.codeBlock}`, `background: ${os(0.07)};`);
+	rule(`.${sm.link}`, `color: ${accent};`);
+	rule(`.${sm.qrHint}`, `color: ${os(0.7)};`);
+	rule(`.${sm.qrUrl}`, `color: ${os(0.54)};`);
+	// The update prompt and its release notes
+	const un = updateNotificationCss;
+	rule(`.${un.option}:focus`, `background: ${os(0.12)};`);
+	rule(`.${un.optionIcon}`, `color: ${os(0.7)};`);
+	rule(`.${un.optionLabel}`, `color: ${onSurface};`);
+	rule(`.${un.notes}`, `color: ${os(0.75)};`);
+	rule(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong'].map((tag) => `.${un.notes} ${tag}`).join(', '), `color: ${onSurface};`);
+	rule(`.${un.notes} pre`, `background: ${os(0.07)};`);
 	if (theme.fontFamily) {
 		rule(`.${cd.title}, .${cd.alertTitle}`, `font-family: '${theme.fontFamily}', sans-serif;`);
 	}

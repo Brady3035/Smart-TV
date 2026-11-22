@@ -7,8 +7,11 @@ import {ISSUE_TYPE, getIssueTypeLabel} from '../../utils/seerrStatus';
 import {seasonNumbersOf} from '../../utils/seerrRequestRules';
 import {SeerrButtonRow, SeerrDialogButton, SeerrDivider, SeerrFocusRow, SeerrSelectorRow} from './SeerrDialogControls';
 import {MaterialIcon} from '../icons/materialIcons';
+import {registerThemeSheet} from '../../theme/themeOverrides';
 
 import css from './ReportIssuePopup.module.less';
+
+registerThemeSheet('reportIssue', css);
 
 // Reports a problem with a title back to Seerr, optionally against one season or episode.
 

@@ -3,8 +3,11 @@ import Spottable from '@enact/spotlight/Spottable';
 import {portal, useDialogLayer} from '../../components/CoreDialog';
 import {MaterialIcon} from '../../components/icons/materialIcons';
 import {ModalContainer} from '../../utils/spotlightContainers';
+import {registerThemeSheet} from '../../theme/themeOverrides';
 
 import css from './SeerrBrowseDialogs.module.less';
+
+registerThemeSheet('seerrBrowseDialogs', css);
 
 // The pieces of the browse screen's sort and settings dialogs. Unlike the shared dialog panel,
 // the title here scrolls away with the list, and focus lands on the first row.
