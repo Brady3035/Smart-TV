@@ -615,7 +615,7 @@ export const buildThemeOverrideCss = (theme, options = {}) => {
 	const lib = lazySheets.library;
 	if (lib) {
 		// The page, its text and the surfaces the toolbar, dock and panel sit on
-		rule(`.${lib.page}`, `background: ${background}; background: linear-gradient(135deg, ${background} 0%, ${surface} 100%);`);
+		rule(`.${lib.page}`, `background: ${background}; background: -webkit-linear-gradient(315deg, ${background} 0%, ${surface} 100%); background: linear-gradient(135deg, ${background} 0%, ${surface} 100%);`);
 		rule(`.${lib.libraryTitle}, .${lib.breadcrumbCurrent}, .${lib.cardTitle}, .${lib.focusedName}, .${lib.sortPanelTitle}`, `color: ${onBackground};`);
 		rule(`.${lib.itemCount}`, `color: ${os(0.4)};`);
 		rule(`.${lib.cardSubtitle}, .${lib.dockCaption}`, `color: ${os(0.6)};`);
@@ -672,6 +672,9 @@ export const buildThemeOverrideCss = (theme, options = {}) => {
 			rule(`.${lib.toolbarBtn}:focus, .${lib.barButton}:focus, .${lib.barPill}:focus, .${lib.dockRow}:focus, .${lib.letterButton}:focus, .${lib.sortOption}:focus, .${lib.breadcrumbItem}:focus`, `background: ${accentA(0.15)};`);
 			rule(`.${lib.sortOption}.${lib.sortOptionActive}`, `background: ${accentA(0.12)};`);
 			rule(`.${lib.barPill}:focus, .${lib.dockRow}:focus`, `color: ${onSurface};`);
+			// An open section's heading stays Neon's color too, until it takes focus
+			rule(`.${lib.sectionHeaderOpen} .${lib.sectionHeaderLabel}`, `color: ${onSurface};`);
+			rule(`.${lib.sectionHeader}:focus .${lib.sectionHeaderLabel}`, `color: ${onBackground};`);
 		}
 	}
 

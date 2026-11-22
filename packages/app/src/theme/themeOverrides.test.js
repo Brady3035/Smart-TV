@@ -148,7 +148,7 @@ describe('buildThemeOverrideCss', () => {
 		const prefix = "html[data-theme-id='8bit_hero'][data-theme-id]";
 		const os = (a) => `rgba(${toRgbTriplet(c.onSurface)}, ${a})`;
 		const lines = buildThemeOverrideCss(theme).split('\n');
-		expect(lines).toContain(`${prefix} .page { background: ${toCssColor(c.background)}; background: linear-gradient(135deg, ${toCssColor(c.background)} 0%, ${toCssColor(c.surface)} 100%); }`);
+		expect(lines).toContain(`${prefix} .page { background: ${toCssColor(c.background)}; background: -webkit-linear-gradient(315deg, ${toCssColor(c.background)} 0%, ${toCssColor(c.surface)} 100%); background: linear-gradient(135deg, ${toCssColor(c.background)} 0%, ${toCssColor(c.surface)} 100%); }`);
 		expect(lines.some((line) => line.includes(`${prefix} .libraryTitle`) && line.endsWith(`{ color: ${toCssColor(c.onBackground)}; }`))).toBe(true);
 		expect(lines).toContain(`${prefix} .sortPanel { background: rgba(${toRgbTriplet(c.surface)}, 0.92); border-color: ${os(0.18)}; }`);
 		expect(lines).toContain(`${prefix} .barPill:focus, ${prefix} .dockRow:focus { background: ${toCssColor(c.onSurface)}; color: ${toCssColor(c.background)}; }`);
@@ -171,6 +171,12 @@ describe('buildThemeOverrideCss', () => {
 		expect(lines).toContain(`${prefix} .sortOption.sortOptionActive { background: rgba(${toRgbTriplet(theme.colors.accent)}, 0.12); }`);
 		const moonfin = buildThemeOverrideCss(resolveThemeById('moonfin'));
 		expect(moonfin).not.toContain('.sortOption.sortOptionActive {');
+		// An open section's heading keeps Neon's color, and turns to the focus ink only when focused
+		const onSurface = toCssColor(theme.colors.onSurface);
+		const open = lines.lastIndexOf(`${prefix} .sectionHeaderOpen .sectionHeaderLabel { color: ${onSurface}; }`);
+		const focused = lines.lastIndexOf(`${prefix} .sectionHeader:focus .sectionHeaderLabel { color: ${toCssColor(theme.colors.onBackground)}; }`);
+		expect(open).toBeGreaterThan(-1);
+		expect(focused).toBeGreaterThan(open);
 	});
 
 	it('draws Switch User in the theme accent, inside the switcher only, and keeps Sign Out All Users red', () => {
