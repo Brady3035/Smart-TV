@@ -624,7 +624,7 @@ export const buildThemeOverrideCss = (theme, options = {}) => {
 		rule(`.${lib.letterButton}`, `color: ${os(0.85)};`);
 		rule(`.${lib.breadcrumbSep}, .${lib.facetNoResults}`, `color: ${os(0.45)};`);
 		rule(`.${lib.placeholderIcon}`, `fill: ${os(0.45)};`);
-		rule(`.${lib.metaPillRating}`, `background: ${os(0.15)};`);
+		rule(`.${lib.metaPillRating}`, `background: ${os(0.15)}; color: ${onBackground};`);
 		rule(`.${lib.poster}, .${lib.posterPlaceholder}`, `background: ${os(0.05)};`);
 		rule(`.${lib.modernBar}`, `background: ${surfaceA(0.72)};`);
 		rule(`.${lib.barDivider}`, `background: ${os(0.1)};`);
