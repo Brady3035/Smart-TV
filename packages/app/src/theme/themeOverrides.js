@@ -46,7 +46,6 @@ import stageCss from '../views/Details/stage/StageDetailContent.module.less';
 import quickLookCss from '../views/Details/quickLook/QuickLookDetailContent.module.less';
 import frostCss from '../views/Details/frost/FrostDetailContent.module.less';
 import trackListCss from '../components/DetailTrackList/DetailTrackList.module.less';
-import libraryCss from '../views/Library/Library.module.less';
 import musicCss from '../views/MusicBrowse/MusicLibrary.module.less';
 import musicScreensCss from '../views/MusicBrowse/MusicScreens.module.less';
 import musicFilterCss from '../views/MusicBrowse/MusicFilterPanel.module.less';
@@ -611,16 +610,70 @@ export const buildThemeOverrideCss = (theme, options = {}) => {
 	rule(`.${overviewCss.spottable}:focus`, `border-color: ${focusColor};`);
 	rule(`.${overviewCss.readMoreBtn}`, `color: ${accent};`);
 
-	// Library grid, its toolbar and the sort and filter panel.
-	const lib = libraryCss;
-	rule(`.${lib.itemCard}:focus .${lib.poster}, .${lib.itemCard}.${lib.focused} .${lib.poster}, .${lib.dockRow}:focus, .${lib.barPill}:focus, .${lib.toolbarBtn}:focus, .${lib.barButton}:focus, .${lib.searchField}:focus, .${lib.searchField}[data-focused]`, `border-color: ${focusColor};`);
-	rule(`.${lib.breadcrumbItem}:focus, .${lib.sectionHeader}:focus, .${lib.sortOption}:focus, .${lib.sortOptionActive} .${lib.radioCircle}`, `border-color: ${accent};`);
-	rule(`.${lib.letterButton}:focus`, `border-color: ${accent}; color: ${accent};`);
-	rule(`.${lib.sortArrow}`, `fill: ${accent};`);
-	rule(`.${lib.sectionSummary}, .${lib.clearGroup}`, `color: ${accent};`);
-	rule(`.${lib.radioFill}`, `background: ${accent};`);
-	rule(`.${lib.sortOptionActive} .${lib.checkboxSquare}`, `border-color: ${accent}; background: ${accent};`);
-	rule(`.${lib.checkIcon}`, `fill: ${onAccent};`);
+	// Library grid, its toolbar and the sort and filter panel. The screen loads on demand and hands
+	// its sheet over then.
+	const lib = lazySheets.library;
+	if (lib) {
+		// The page, its text and the surfaces the toolbar, dock and panel sit on
+		rule(`.${lib.page}`, `background: ${background}; background: linear-gradient(135deg, ${background} 0%, ${surface} 100%);`);
+		rule(`.${lib.libraryTitle}, .${lib.breadcrumbCurrent}, .${lib.cardTitle}, .${lib.focusedName}, .${lib.sortPanelTitle}`, `color: ${onBackground};`);
+		rule(`.${lib.itemCount}`, `color: ${os(0.4)};`);
+		rule(`.${lib.cardSubtitle}, .${lib.dockCaption}`, `color: ${os(0.6)};`);
+		rule(`.${lib.metaItem}, .${lib.empty}, .${lib.breadcrumbItem}, .${lib.sortOption}`, `color: ${os(0.7)};`);
+		rule(`.${lib.sectionHeaderLabel}, .${lib.dialogHeading}`, `color: ${os(0.72)};`);
+		rule(`.${lib.letterButton}`, `color: ${os(0.85)};`);
+		rule(`.${lib.breadcrumbSep}, .${lib.facetNoResults}`, `color: ${os(0.45)};`);
+		rule(`.${lib.placeholderIcon}`, `fill: ${os(0.45)};`);
+		rule(`.${lib.metaPillRating}`, `background: ${os(0.15)};`);
+		rule(`.${lib.poster}, .${lib.posterPlaceholder}`, `background: ${os(0.05)};`);
+		rule(`.${lib.modernBar}`, `background: ${surfaceA(0.72)};`);
+		rule(`.${lib.barDivider}`, `background: ${os(0.1)};`);
+		rule(`.${lib.dock}`, `background: ${surfaceA(0.88)}; border-right-color: ${os(0.06)};`);
+		rule(`.${lib.dockLetters}`, `border-top-color: ${os(0.08)};`);
+		rule(`.${lib.sortPanelOverlay}`, `background: ${scrim(0.45)};`);
+		rule(`.${lib.sortPanel}`, `background: ${surfaceA(0.92)}; border-color: ${os(0.18)};`);
+		rule(`.${lib.filterSection}, .${lib.dialogHeading}, .${lib.dialogRule}`, `border-top-color: ${os(0.12)};`);
+		// The search field
+		rule(`.${lib.searchField}`, `background: ${surfaceA(0.72)}; color: ${onSurface};`);
+		rule(`.${lib.searchField} input::-webkit-input-placeholder`, `color: ${os(0.62)};`);
+		rule(`.${lib.searchField} input::placeholder`, `color: ${os(0.62)};`);
+		rule(`.${lib.searchIcon}`, `fill: ${onSurface};`);
+		// Toolbar buttons, bar pills and dock rows invert on focus
+		rule(`.${lib.toolbarIcon}`, `fill: ${os(0.5)};`);
+		rule(`.${lib.toolbarBtn}:focus, .${lib.barButton}:focus`, `background: ${onSurface};`);
+		rule(`.${lib.toolbarBtn}:focus .${lib.toolbarIcon}, .${lib.barButton}:focus .${lib.toolbarIcon}`, `fill: ${background};`);
+		rule(`.${lib.barPill}, .${lib.dockRow}`, `color: ${onSurface};`);
+		rule(`.${lib.barPill}:focus, .${lib.dockRow}:focus`, `background: ${onSurface}; color: ${background};`);
+		// Breadcrumb and the Sort & Filter panel's headers and options, in the theme's chip shape
+		rule(`.${lib.breadcrumbItem}:focus, .${lib.sortOption}:focus, .${lib.sortOptionActive}`, `color: ${onBackground};`);
+		rule(`.${lib.breadcrumbItem}:focus`, `background: ${os(0.08)};`);
+		rule(`.${lib.sectionHeader}`, `border: ${chipBorder}; border-color: transparent; border-radius: ${chipRadius};`);
+		rule(`.${lib.sortOption}`, `background: ${chipBackground}; border: ${chipBorder}; border-radius: ${chipRadius};`);
+		rule(`.${lib.sectionHeader}:focus, .${lib.sortOption}:focus`, `background: ${os(0.1)};`);
+		rule(`.${lib.sectionChevron}`, `fill: ${os(0.72)};`);
+		rule(`.${lib.sectionHeader}:focus .${lib.sectionHeaderLabel}, .${lib.sectionHeaderOpen} .${lib.sectionHeaderLabel}`, `color: ${onBackground};`);
+		rule(`.${lib.sectionHeader}:focus .${lib.sectionChevron}`, `fill: ${onBackground};`);
+		rule(`.${lib.radioCircle}, .${lib.checkboxSquare}`, `border-color: ${os(0.35)};`);
+		// Focus borders and the accent
+		rule(`.${lib.itemCard}:focus .${lib.poster}, .${lib.itemCard}.${lib.focused} .${lib.poster}, .${lib.dockRow}:focus, .${lib.barPill}:focus, .${lib.toolbarBtn}:focus, .${lib.barButton}:focus, .${lib.searchField}:focus, .${lib.searchField}[data-focused]`, `border-color: ${focusColor};`);
+		rule(`.${lib.breadcrumbItem}:focus, .${lib.sectionHeader}:focus, .${lib.sortOption}:focus, .${lib.sortOptionActive} .${lib.radioCircle}`, `border-color: ${accent};`);
+		rule(`.${lib.letterButton}:focus`, `border-color: ${accent}; color: ${accent};`);
+		rule(`.${lib.sortArrow}`, `fill: ${accent};`);
+		rule(`.${lib.sectionSummary}, .${lib.clearGroup}`, `color: ${accent};`);
+		rule(`.${lib.radioFill}`, `background: ${accent};`);
+		rule(`.${lib.sortOptionActive} .${lib.checkboxSquare}`, `border-color: ${accent}; background: ${accent};`);
+		rule(`.${lib.checkIcon}`, `fill: ${onAccent};`);
+		// Neon Pulse's own library look (the end of Library.module.less). The focus borders stay
+		// the focus color above.
+		if (theme.id === 'neon_pulse') {
+			rule(`.${lib.libraryTitle}, .${lib.focusedName}, .${lib.sortPanelTitle}`, `color: ${accent}; text-shadow: ${textGlow};`);
+			rule(`.${lib.itemCount}, .${lib.focusedMeta}, .${lib.metaItem}, .${lib.sectionHeaderLabel}, .${lib.dialogHeading}, .${lib.dockCaption}, .${lib.cardSubtitle}, .${lib.pillValue}`, `color: ${onSurface};`);
+			rule(`.${lib.toolbarIcon}, .${lib.pillIcon}, .${lib.barButton}:focus .${lib.toolbarIcon}`, `fill: ${onSurface};`);
+			rule(`.${lib.toolbarBtn}:focus, .${lib.barButton}:focus, .${lib.barPill}:focus, .${lib.dockRow}:focus, .${lib.letterButton}:focus, .${lib.sortOption}:focus, .${lib.breadcrumbItem}:focus`, `background: ${accentA(0.15)};`);
+			rule(`.${lib.sortOption}.${lib.sortOptionActive}`, `background: ${accentA(0.12)};`);
+			rule(`.${lib.barPill}:focus, .${lib.dockRow}:focus`, `color: ${onSurface};`);
+		}
+	}
 
 	// Detail screens, stage layout
 	rule(`.${stageCss.chip}:focus, .${stageCss.name}:focus`, `border-color: ${focusColor};`);

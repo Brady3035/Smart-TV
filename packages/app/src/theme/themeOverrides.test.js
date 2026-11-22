@@ -1,6 +1,6 @@
 import {applyThemeOverrides, buildThemeOverrideCss, registerThemeSheet} from './themeOverrides';
 import {resolveThemeById} from './themeRegistry';
-import {contrastRatio, inkOn, resolveFocusBorderColor, toCssColor, MIN_BUTTON_CONTRAST, toRgbTriplet} from './themeSpec';
+import {contrastRatio, inkOn, radiusToCss, resolveFocusBorderColor, toCssColor, MIN_BUTTON_CONTRAST, toRgbTriplet} from './themeSpec';
 
 describe('buildThemeOverrideCss', () => {
 	it('scopes every rule to the active theme id', () => {
@@ -126,7 +126,10 @@ describe('buildThemeOverrideCss', () => {
 		expect(buildThemeOverrideCss(theme, {focusBorderColor: ''})).toContain(`${prefix} .ring { border-color: ${themeColor}; }`);
 	});
 
+	const libraryClasses = new Proxy({}, {get: (target, name) => name});
+
 	it('rings the library cards in the focus border color and draws its controls in the accent', () => {
+		registerThemeSheet('library', libraryClasses);
 		const theme = resolveThemeById('8bit_hero');
 		const accent = toCssColor(theme.colors.accent);
 		const prefix = "html[data-theme-id='8bit_hero'][data-theme-id]";
@@ -136,6 +139,38 @@ describe('buildThemeOverrideCss', () => {
 		expect(lines).toContain(`${prefix} .radioFill { background: ${accent}; }`);
 		expect(lines.some((line) => line.includes(`${prefix} .searchField[data-focused]`) && line.endsWith('{ border-color: rgb(255, 0, 0); }'))).toBe(true);
 		expect(lines).toContain(`${prefix} .checkIcon { fill: ${toCssColor(theme.colors.onAccent)}; }`);
+	});
+
+	it('draws the library page, text, panels and focused pills in the theme colors', () => {
+		registerThemeSheet('library', libraryClasses);
+		const theme = resolveThemeById('8bit_hero');
+		const c = theme.colors;
+		const prefix = "html[data-theme-id='8bit_hero'][data-theme-id]";
+		const os = (a) => `rgba(${toRgbTriplet(c.onSurface)}, ${a})`;
+		const lines = buildThemeOverrideCss(theme).split('\n');
+		expect(lines).toContain(`${prefix} .page { background: ${toCssColor(c.background)}; background: linear-gradient(135deg, ${toCssColor(c.background)} 0%, ${toCssColor(c.surface)} 100%); }`);
+		expect(lines.some((line) => line.includes(`${prefix} .libraryTitle`) && line.endsWith(`{ color: ${toCssColor(c.onBackground)}; }`))).toBe(true);
+		expect(lines).toContain(`${prefix} .sortPanel { background: rgba(${toRgbTriplet(c.surface)}, 0.92); border-color: ${os(0.18)}; }`);
+		expect(lines).toContain(`${prefix} .barPill:focus, ${prefix} .dockRow:focus { background: ${toCssColor(c.onSurface)}; color: ${toCssColor(c.background)}; }`);
+		// The option chips take the theme's chip corners, square on a pixel theme
+		expect(radiusToCss(theme.borders.chipRadius)).toBe('0px');
+		expect(lines.some((line) => line.startsWith(`${prefix} .sortOption {`) && line.includes('border-radius: 0px;'))).toBe(true);
+		// Only Neon Pulse gives the title a glow
+		expect(lines.some((line) => line.includes(`${prefix} .libraryTitle`) && line.includes('text-shadow'))).toBe(false);
+	});
+
+	it('keeps Neon Pulse\'s glowing library title and tinted focus', () => {
+		registerThemeSheet('library', libraryClasses);
+		const theme = resolveThemeById('neon_pulse');
+		const prefix = "html[data-theme-id='neon_pulse'][data-theme-id]";
+		const accent = toCssColor(theme.colors.accent);
+		const lines = buildThemeOverrideCss(theme).split('\n');
+		const title = lines.filter((line) => line.startsWith(`${prefix} .libraryTitle, `));
+		// The plain title color comes first and Neon's accent and glow after it, so Neon's wins
+		expect(title[title.length - 1]).toContain(`color: ${accent}; text-shadow: `);
+		expect(lines).toContain(`${prefix} .sortOption.sortOptionActive { background: rgba(${toRgbTriplet(theme.colors.accent)}, 0.12); }`);
+		const moonfin = buildThemeOverrideCss(resolveThemeById('moonfin'));
+		expect(moonfin).not.toContain('.sortOption.sortOptionActive {');
 	});
 
 	it('draws Switch User in the theme accent, inside the switcher only, and keeps Sign Out All Users red', () => {
