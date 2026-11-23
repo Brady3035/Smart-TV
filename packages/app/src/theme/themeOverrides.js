@@ -453,20 +453,19 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	rule(`.${detailsCss.trackPlayed} svg`, `fill: ${accent};`);
 	rule(`.${detailsCss.actionBtn}`, `background: ${os(0.1)}; border-color: ${os(0.2)}; color: ${onBackground};`);
 	rule(`.${detailsCss.actionBtn}:hover, .${detailsCss.actionBtn}:focus`, `background: ${accentA(0.3)}; border-color: ${focusColor};`);
-	rule(`.${detailsCss.personActionBtn}:focus`, `border-color: ${focusColor};`);
-	// The library Person screen: the portrait ring and the open tab in the focus colour, like its stylesheet
+	rule(`.${detailsCss.personActionBtn}:focus`, `background: ${accentA(0.3)}; border-color: ${focusColor};`);
+	// The library Person screen: the open tab in the focus colour, like its stylesheet
 	const focusHex = isValidHexColor(options.focusBorderColor) ? options.focusBorderColor : b.focusBorder.color;
 	const ob = (a) => `rgba(${toRgbTriplet(c.onBackground)}, ${a})`;
-	rule(`.${detailsCss.personPhoto}, .${detailsCss.personPhotoPlaceholder}`, `border-color: ${focusColor};`);
 	rule(`.${detailsCss.personPhotoPlaceholder}`, `background: ${ob(0.08)};`);
 	rule(`.${detailsCss.personPhotoPlaceholder} svg`, `color: ${ob(0.25)};`);
 	rule(`.${detailsCss.personInfo} .${detailsCss.overview}`, `color: ${ob(0.85)};`);
 	rule(`.${detailsCss.overviewToggle}:focus`, `background-color: ${ob(0.08)};`);
 	rule(`.${detailsCss.overviewToggleHint}`, `color: ${focusColor};`);
 	rule(`.${detailsCss.personActionBtn}`, `background: ${ob(0.08)}; color: ${onBackground};`);
-	rule(`.${detailsCss.personActionBtn}:focus`, `background: ${accentA(0.3)};`);
 	rule(`.${detailsCss.personTab}`, `color: ${ob(0.7)}; background: ${ob(0.06)};`);
-	rule(`.${detailsCss.personTab}:focus`, `background-color: ${ob(0.12)};`);
+	// The focus wash covers the open tab's fill too, so its label goes back to the page's text colour
+	rule(`.${detailsCss.personTab}:focus`, `background-color: ${ob(0.12)}; color: ${onBackground};`);
 	// White where it can be read on the fill, else dark or light ink by how bright the fill is
 	const tabInk = contrastRatio(focusHex, '#FFFFFFFF') >= MIN_BUTTON_CONTRAST ? '#fff' : `rgba(${inkOn(focusHex)}, 0.87)`;
 	rule(`.${detailsCss.personTabActive}`, `color: ${tabInk}; background: ${focusColor};`);
@@ -805,6 +804,7 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	rule(`.${seerrDownloadCss.stalled} .${seerrDownloadCss.fill}`, `background: ${statusPending};`);
 	rule(`.${seerrDownloadCss.failed} .${seerrDownloadCss.fill}`, `background: ${statusError};`);
 	rule(`.${seerrDownloadCss.reason}, .${seerrDownloadCss.notFound}, .${seerrRequestsCss.tileReason}`, `color: ${os(0.6)};`);
+	rule(`.${seerrRequestCss.match}`, `border-color: ${os(0.12)}; background: ${os(0.06)};`);
 	rule(`.${seerrRequestCss.match}:focus`, `box-shadow: inset 0 0 0 ${rem(2)} ${accent};`);
 	rule(`.${seerrRequestCss.matchSelected}`, `background: ${accentA(0.18)};`);
 	rule(`.${seerrRequestCss.matchCheck}`, `color: ${accent};`);
@@ -882,11 +882,10 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 		rule(`.${playerOverlays.sliderItem}:focus-within`, `border-color: ${focusColor};`);
 	}
 	if (episodeBrowser) {
-		rule(ring(episodeBrowser, ['episode'], [':hover', ':focus']), `border-color: ${focusColor};`);
+		rule(ring(episodeBrowser, ['episode'], [':hover', ':focus']), `background: ${accentA(0.3)}; border-color: ${focusColor};`);
 		// The list sits on the shared dialog panel, so its text follows that panel's colours
 		rule(`.${episodeBrowser.message}`, `color: ${os(0.7)};`);
 		rule(`.${episodeBrowser.episode}`, `background: ${os(0.06)};`);
-		rule(ring(episodeBrowser, ['episode'], [':hover', ':focus']), `background: ${accentA(0.3)};`);
 		rule(`.${episodeBrowser.episodeCurrent}`, `background: ${accentA(0.18)}; border-color: ${accentA(0.5)};`);
 		rule(`.${episodeBrowser.thumb}`, `background: ${os(0.08)};`);
 		rule(`.${episodeBrowser.thumbPlaceholder}`, `color: ${os(0.3)};`);
@@ -913,12 +912,11 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 		rule(`.${calendar.row}:focus::after, .${calendar.card}:focus::after, .${calendar.cell}:focus::after`, `border-color: ${focusColor};`);
 		rule(`.${calendar.button}:focus, .${calendar.tab}:focus`, `background: ${onSurface} !important; border-color: ${focusColor}; color: ${inkOn(c.onSurface) === '0, 0, 0' ? 'rgba(0, 0, 0, 0.87)' : '#fff'};`);
 	}
-	// The Seerr person screen: the portrait ring and the tabs in the theme's accent
+	// The Seerr person screen: the tabs in the theme's accent
 	if (personShell) {
 		const ps = personShell;
 		rule(`.${ps.page}`, `background: ${background};`);
 		rule(`.${ps.name}`, `color: ${onBackground};`);
-		rule(`.${ps.personImage}, .${ps.noImage}`, `border-color: ${accent};`);
 		rule(`.${ps.noImage}`, `background: ${surfaceVariant}; color: ${os(0.45)};`);
 		rule(`.${ps.metaRow} > * + *::before`, `color: ${os(0.45)};`);
 		rule(`.${ps.meta}, .${ps.overview}, .${ps.favoriteBtn}, .${ps.tab}`, `color: ${os(0.7)};`);
@@ -1020,10 +1018,11 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	rule(`.${sr.continuingText}, .${sr.matchTitle}`, `color: ${onSurface};`);
 	rule(`.${sr.chip}`, `background: ${os(0.08)}; color: ${os(0.7)};`);
 	rule(`.${sr.chip}:focus`, `box-shadow: inset 0 0 0 ${rem(2)} ${accent};`);
-	rule(`.${sr.chipSelected}, .${sr.chipSelected}.${sr.chipDisabled}`, `background: ${accent}; color: ${badgeInk};`);
+	rule(`.${sr.chipSelected}`, `background: ${accent}; color: ${badgeInk};`);
+	// After the selected chip, so a season already asked for keeps the dimmed text it had
 	rule(`.${sr.chipDisabled}`, `background: ${os(0.04)}; color: ${os(0.38)};`);
+	rule(`.${sr.chipSelected}.${sr.chipDisabled}`, `background: ${accent};`);
 	rule(`.${sr.matchNote}, .${sr.advancedHeader}`, `color: ${os(0.7)};`);
-	rule(`.${sr.match}`, `border-color: ${os(0.12)}; background: ${os(0.06)};`);
 	rule(`.${sr.matchPoster}`, `background: ${os(0.1)};`);
 	rule(`.${sr.matchYear}, .${sr.matchOverview}, .${sr.advancedEmpty}`, `color: ${os(0.54)};`);
 	rule(`.${sr.spinner}`, `border-top-color: ${accent};`);

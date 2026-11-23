@@ -184,23 +184,32 @@ describe('buildThemeOverrideCss', () => {
 			expect(lines.some((line) => line.includes('.qrBox'))).toBe(false);
 			// Older engines drop a rule over a selector they can't read, so each placeholder rule stands alone
 			expect(lines).toContain(`${prefix} .messageField input::placeholder { color: ${os(0.54)}; }`);
+			// Every override weighs the same, so a state has to come after its base to win, as in the stylesheet
+			const at = (start) => lines.findIndex((line) => line.startsWith(`${prefix} ${start} {`));
+			expect(at('.match')).toBeGreaterThan(-1);
+			expect(at('.match')).toBeLessThan(at('.matchSelected'));
+			expect(at('.chipSelected')).toBeLessThan(at('.chipDisabled'));
+			expect(at('.chipDisabled')).toBeLessThan(at(`.chipSelected.chipDisabled`));
+			expect(lines[at('.chipSelected.chipDisabled')]).not.toContain('color:');
 		}
 	});
 
-	it('rings the person screens in the theme: Seerr\'s in the accent, the library\'s in the focus colour', () => {
+	it('leaves the person portraits without a ring, like Core, and keeps the open tab readable', () => {
 		registerThemeSheet('personShell', {page: 'page', name: 'name', personImage: 'personImage', noImage: 'noImage', metaRow: 'metaRow', meta: 'meta', overview: 'psOverview', favoriteBtn: 'favoriteBtn', tab: 'tab', overviewToggle: 'psToggle', tabActive: 'tabActive'});
 		for (const id of ['neon_pulse', '8bit_hero', 'glass']) {
 			const theme = resolveThemeById(id);
 			const prefix = `html[data-theme-id='${id}'][data-theme-id]`;
 			const focus = resolveFocusBorderColor(theme, '');
 			const lines = buildThemeOverrideCss(theme).split('\n');
-			expect(lines).toContain(`${prefix} .personImage, ${prefix} .noImage { border-color: ${toCssColor(theme.colors.accent)}; }`);
-			expect(lines).toContain(`${prefix} .personPhoto, ${prefix} .personPhotoPlaceholder { border-color: ${focus}; }`);
-			// The open tab's label stays readable on the focus colour, white on Glass included
+			expect(lines.some((line) => /\.(personImage|noImage|personPhoto|personPhotoPlaceholder)\b[^{]*\{[^}]*border/.test(line))).toBe(false);
+			// The open tab fills with the focus colour, and its label stays readable on it, Glass's white included
 			const tab = lines.find((line) => line.startsWith(`${prefix} .personTabActive {`));
+			expect(tab).toContain(`background: ${focus};`);
 			const ink = tab.match(/color: ([^;]+);/)[1];
 			const inkHex = ink === '#fff' ? '#FFFFFFFF' : (ink.startsWith('rgba(0, 0, 0') ? '#FF000000' : '#FFFFFFFF');
 			expect(contrastRatio(theme.borders.focusBorder.color, inkHex)).toBeGreaterThanOrEqual(MIN_BUTTON_CONTRAST);
+			// Focus washes over the open tab's fill, so the focused label goes back to the page's text colour
+			expect(lines).toContain(`${prefix} .personTab:focus { background-color: rgba(${toRgbTriplet(theme.colors.onBackground)}, 0.12); color: ${toCssColor(theme.colors.onBackground)}; }`);
 		}
 	});
 
