@@ -915,7 +915,6 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	// The Seerr person screen: the tabs in the theme's accent
 	if (personShell) {
 		const ps = personShell;
-		const ob = (a) => `rgba(${toRgbTriplet(c.onBackground)}, ${a})`;
 		rule(`.${ps.page}`, `background: ${background};`);
 		rule(`.${ps.name}`, `color: ${onBackground};`);
 		rule(`.${ps.noImage}`, `background: ${surfaceVariant}; color: ${os(0.45)};`);
