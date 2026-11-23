@@ -464,11 +464,11 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	rule(`.${detailsCss.overviewToggleHint}`, `color: ${focusColor};`);
 	rule(`.${detailsCss.personActionBtn}`, `background: ${ob(0.08)}; color: ${onBackground};`);
 	rule(`.${detailsCss.personTab}`, `color: ${ob(0.7)}; background: ${ob(0.06)};`);
-	// The focus wash covers the open tab's fill too, so its label goes back to the page's text colour
-	rule(`.${detailsCss.personTab}:focus`, `background-color: ${ob(0.12)}; color: ${onBackground};`);
+	rule(`.${detailsCss.personTab}:focus`, `background-color: ${ob(0.12)};`);
 	// White where it can be read on the fill, else dark or light ink by how bright the fill is
 	const tabInk = contrastRatio(focusHex, '#FFFFFFFF') >= MIN_BUTTON_CONTRAST ? '#fff' : `rgba(${inkOn(focusHex)}, 0.87)`;
 	rule(`.${detailsCss.personTabActive}`, `color: ${tabInk}; background: ${focusColor};`);
+	rule(`.${detailsCss.personTabActive}:focus`, `color: ${onBackground};`);
 	rule(`.${detailsCss.toast}`, `background: ${surfaceA(0.9)}; color: ${onBackground}; border-color: ${os(0.12)};`);
 	rule(`.${detailsCss.trailerCloseBtn}`, `background: ${os(0.15)}; color: ${onBackground};`);
 

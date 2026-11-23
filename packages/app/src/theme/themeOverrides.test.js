@@ -188,6 +188,7 @@ describe('buildThemeOverrideCss', () => {
 			const at = (start) => lines.findIndex((line) => line.startsWith(`${prefix} ${start} {`));
 			expect(at('.match')).toBeGreaterThan(-1);
 			expect(at('.match')).toBeLessThan(at('.matchSelected'));
+			['.chipSelected', '.chipDisabled', '.chipSelected.chipDisabled', '.matchSelected'].forEach((start) => expect(at(start)).toBeGreaterThan(-1));
 			expect(at('.chipSelected')).toBeLessThan(at('.chipDisabled'));
 			expect(at('.chipDisabled')).toBeLessThan(at(`.chipSelected.chipDisabled`));
 			expect(lines[at('.chipSelected.chipDisabled')]).not.toContain('color:');
@@ -208,8 +209,8 @@ describe('buildThemeOverrideCss', () => {
 			const ink = tab.match(/color: ([^;]+);/)[1];
 			const inkHex = ink === '#fff' ? '#FFFFFFFF' : (ink.startsWith('rgba(0, 0, 0') ? '#FF000000' : '#FFFFFFFF');
 			expect(contrastRatio(theme.borders.focusBorder.color, inkHex)).toBeGreaterThanOrEqual(MIN_BUTTON_CONTRAST);
-			// Focus washes over the open tab's fill, so the focused label goes back to the page's text colour
-			expect(lines).toContain(`${prefix} .personTab:focus { background-color: rgba(${toRgbTriplet(theme.colors.onBackground)}, 0.12); color: ${toCssColor(theme.colors.onBackground)}; }`);
+			// The focus wash covers the open tab's fill, so its focused label goes back to the page's text colour
+			expect(lines).toContain(`${prefix} .personTabActive:focus { color: ${toCssColor(theme.colors.onBackground)}; }`);
 		}
 	});
 
