@@ -915,11 +915,12 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	// The Seerr person screen: the tabs in the theme's accent
 	if (personShell) {
 		const ps = personShell;
+		const ob = (a) => `rgba(${toRgbTriplet(c.onBackground)}, ${a})`;
 		rule(`.${ps.page}`, `background: ${background};`);
 		rule(`.${ps.name}`, `color: ${onBackground};`);
 		rule(`.${ps.noImage}`, `background: ${surfaceVariant}; color: ${os(0.45)};`);
-		rule(`.${ps.metaRow} > * + *::before`, `color: ${os(0.45)};`);
-		rule(`.${ps.meta}, .${ps.overview}, .${ps.favoriteBtn}, .${ps.tab}`, `color: ${os(0.7)};`);
+		rule(`.${ps.metaRow} > * + *::before`, `color: ${ob(0.45)};`);
+		rule(`.${ps.meta}, .${ps.overview}, .${ps.favoriteBtn}, .${ps.tab}`, `color: ${ob(0.7)};`);
 		rule(`.${ps.overview}:focus, .${ps.favoriteBtn}:focus, .${ps.tab}:focus`, `border-color: ${accentA(0.5)};`);
 		rule(`.${ps.overviewToggle}`, `color: ${accentA(0.8)};`);
 		rule(`.${ps.tabActive}`, `color: ${onBackground}; background: ${accentA(0.2)};`);
@@ -941,6 +942,8 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	if (seerrBrowseDialogs) {
 		const sb = seerrBrowseDialogs;
 		const downloading = toCssColor(theme.semantic.statusDownloading);
+		const downloadingHex = theme.semantic.statusDownloading;
+		const markInk = contrastRatio(downloadingHex, '#FFFFFFFF') >= MIN_BUTTON_CONTRAST ? '#fff' : `rgba(${inkOn(downloadingHex)}, 0.87)`;
 		rule(`.${sb.panel}`, `background: ${surfaceA(0.9)}; color: ${onSurface};`);
 		rule(`.${sb.subtitle}, .${sb.tileLabel}`, `color: ${os(0.7)};`);
 		// Colour only, so the divider keeps its content-box clip
@@ -949,8 +952,10 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 		rule(`.${sb.tile}:focus`, `background: ${os(0.12)};`);
 		rule(`.${sb.radio}, .${sb.check}`, `border-color: ${os(0.5)};`);
 		rule(`.${sb.markOn}`, `border-color: ${downloading}; background: ${downloading};`);
-		rule(`.${sb.radioDot}`, `background: ${onSurface};`);
-		rule(`.${sb.checkGlyph}, .${sb.tileLabelOn}`, `color: ${onSurface};`);
+		// The dot and tick sit on the filled mark, so their colour comes from that fill; the label beside it stays in the text colour
+		rule(`.${sb.radioDot}`, `background: ${markInk};`);
+		rule(`.${sb.checkGlyph}`, `color: ${markInk};`);
+		rule(`.${sb.tileLabelOn}`, `color: ${onSurface};`);
 		rule(`.${sb.sortArrow}, .${sb.expanderCount}, .${sb.clear}`, `color: ${downloading};`);
 	}
 	if (moonbaseDialog) {
@@ -1022,14 +1027,15 @@ export const buildThemeOverrideCss = (theme, options = {}, lazyOnly = false) => 
 	// After the selected chip, so a season already asked for keeps the dimmed text it had
 	rule(`.${sr.chipDisabled}`, `background: ${os(0.04)}; color: ${os(0.38)};`);
 	rule(`.${sr.chipSelected}.${sr.chipDisabled}`, `background: ${accent};`);
-	rule(`.${sr.matchNote}, .${sr.advancedHeader}`, `color: ${os(0.7)};`);
+	// Unfocused only: focused, the shared row fills solid and turns its text dark
+	rule(`.${sr.matchNote}, .${sr.advancedHeader}:not(:focus)`, `color: ${os(0.7)};`);
 	rule(`.${sr.matchPoster}`, `background: ${os(0.1)};`);
 	rule(`.${sr.matchYear}, .${sr.matchOverview}, .${sr.advancedEmpty}`, `color: ${os(0.54)};`);
 	rule(`.${sr.spinner}`, `border-top-color: ${accent};`);
 	// Server messages, also the markdown in reviews. The QR box stays white so the code can be read.
 	const sm = serverMessagesCss;
 	rule(`.${sm.empty}`, `color: ${os(0.6)};`);
-	rule(`.${sm.card}`, `background: rgba(${toRgbTriplet(c.surfaceVariant)}, 0.95);`);
+	rule(`.${sm.card}`, `background: ${toCssColorWithAlpha(c.surfaceVariant, 0.95)};`);
 	rule(`.${sm.cardTitle}, .${sm.body} strong, .${sm.h1}, .${sm.h2}, .${sm.h3}`, `color: ${onSurface};`);
 	rule(`.${sm.cardDate}`, `color: ${os(0.5)};`);
 	rule(`.${sm.preview}, .${sm.body}`, `color: ${os(0.75)};`);

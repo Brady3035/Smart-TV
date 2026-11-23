@@ -1,6 +1,32 @@
+import fs from 'fs';
+import path from 'path';
 import {applyThemeOverrides, buildThemeOverrideCss, registerThemeSheet} from './themeOverrides';
 import {resolveThemeById} from './themeRegistry';
 import {contrastRatio, inkOn, resolveFocusBorderColor, toCssColor, MIN_BUTTON_CONTRAST, toRgbTriplet} from './themeSpec';
+
+// Each rule block in a Less file as its selector and its own declarations, nested blocks left out
+const lessBlocks = (file) => {
+	const source = fs.readFileSync(path.resolve(__dirname, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+	const blocks = [];
+	const stack = [];
+	let text = '';
+	for (const ch of source) {
+		if (ch === '{') {
+			stack.push({selector: text.trim(), own: ''});
+			text = '';
+		} else if (ch === '}') {
+			const block = stack.pop();
+			if (block) blocks.push({selector: block.selector, own: block.own + text});
+			text = '';
+		} else if (ch === ';' && stack.length) {
+			stack[stack.length - 1].own += text + ';';
+			text = '';
+		} else {
+			text += ch;
+		}
+	}
+	return blocks;
+};
 
 describe('buildThemeOverrideCss', () => {
 	it('scopes every rule to the active theme id', () => {
@@ -203,6 +229,16 @@ describe('buildThemeOverrideCss', () => {
 			const focus = resolveFocusBorderColor(theme, '');
 			const lines = buildThemeOverrideCss(theme).split('\n');
 			expect(lines.some((line) => /\.(personImage|noImage|personPhoto|personPhotoPlaceholder)\b[^{]*\{[^}]*border/.test(line))).toBe(false);
+			// Nor in the stylesheets themselves, the Neon block included
+			const portraits = [
+				['../components/PersonDetailShell/PersonDetailShell.module.less', /\.(personImage|noImage)(?![\w-])/],
+				['../views/Details/Details.module.less', /\.(personPhoto|personPhotoPlaceholder)(?![\w-])/]
+			];
+			for (const [file, selector] of portraits) {
+				const matched = lessBlocks(file).filter((block) => selector.test(block.selector));
+				expect(matched.length).toBeGreaterThan(0);
+				matched.forEach((block) => expect(block.own).not.toMatch(/(^|;)\s*border(-color)?\s*:/));
+			}
 			// The open tab fills with the focus colour, and its label stays readable on it, Glass's white included
 			const tab = lines.find((line) => line.startsWith(`${prefix} .personTabActive {`));
 			expect(tab).toContain(`background: ${focus};`);
