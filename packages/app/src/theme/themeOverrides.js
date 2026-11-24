@@ -668,7 +668,7 @@ export const buildThemeOverrideCss = (theme, options = {}) => {
 		if (theme.id === 'neon_pulse') {
 			rule(`.${lib.libraryTitle}, .${lib.focusedName}, .${lib.sortPanelTitle}`, `color: ${accent}; text-shadow: ${textGlow};`);
 			rule(`.${lib.itemCount}, .${lib.focusedMeta}, .${lib.metaItem}, .${lib.sectionHeaderLabel}, .${lib.dialogHeading}, .${lib.dockCaption}, .${lib.cardSubtitle}, .${lib.pillValue}`, `color: ${onSurface};`);
-			rule(`.${lib.toolbarIcon}, .${lib.pillIcon}, .${lib.barButton}:focus .${lib.toolbarIcon}`, `fill: ${onSurface};`);
+			rule(`.${lib.toolbarIcon}, .${lib.pillIcon}, .${lib.toolbarBtn}:focus .${lib.toolbarIcon}, .${lib.barButton}:focus .${lib.toolbarIcon}`, `fill: ${onSurface};`);
 			rule(`.${lib.toolbarBtn}:focus, .${lib.barButton}:focus, .${lib.barPill}:focus, .${lib.dockRow}:focus, .${lib.letterButton}:focus, .${lib.sortOption}:focus, .${lib.breadcrumbItem}:focus`, `background: ${accentA(0.15)};`);
 			rule(`.${lib.sortOption}.${lib.sortOptionActive}`, `background: ${accentA(0.12)};`);
 			rule(`.${lib.barPill}:focus, .${lib.dockRow}:focus`, `color: ${onSurface};`);

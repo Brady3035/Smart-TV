@@ -177,6 +177,9 @@ describe('buildThemeOverrideCss', () => {
 		const focused = lines.lastIndexOf(`${prefix} .sectionHeader:focus .sectionHeaderLabel { color: ${toCssColor(theme.colors.onBackground)}; }`);
 		expect(open).toBeGreaterThan(-1);
 		expect(focused).toBeGreaterThan(open);
+		// A focused toolbar button keeps its icon in Neon's ink, not the background color
+		const toolbarIcon = lines.filter((line) => line.includes(`${prefix} .toolbarBtn:focus .toolbarIcon`));
+		expect(toolbarIcon[toolbarIcon.length - 1]).toContain(`fill: ${onSurface};`);
 	});
 
 	it('draws Switch User in the theme accent, inside the switcher only, and keeps Sign Out All Users red', () => {
