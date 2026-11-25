@@ -39,6 +39,7 @@ export default function StillWatchingDialog(props) {
     <view
       ref={(n) => props.ref && props.ref(n)}
       width={1920}
+      pointerModal
       height={1080}
       alpha={props.show ? 1 : 0}
       onFocusChanged={(has) => {
@@ -84,14 +85,14 @@ export default function StillWatchingDialog(props) {
         >
           {body}
         </text>
-        <view x={35} y={look().continueY} width={INNER} height={65}>
+        <view x={35} y={look().continueY} width={INNER} height={65} onPointerOver={() => setCur(0)}>
           <view width={INNER} height={65} borderRadius={20} color={c.accent} />
           <view width={INNER} height={65} borderRadius={20} color="#00000000" border={{ width: 1, color: hex(c.accentButtonFocus) }} alpha={onContinue() ? 1 : 0} />
           <text fontFamily={bold} fontSize={22} x={226} y={22} lineHeight={25} mountX={0.5} color={c.onAccent}>
             {continueLabel}
           </text>
         </view>
-        <view x={35} y={look().stopY} width={INNER} height={59}>
+        <view x={35} y={look().stopY} width={INNER} height={59} onPointerOver={() => setCur(1)}>
           <view width={INNER} height={59} borderRadius={20} color="#00000000" border={{ width: 1, color: hex(c.focus) }} alpha={onStop() ? 1 : 0} />
           <text fontFamily={regular} fontSize={22} x={226} y={19} lineHeight={25} mountX={0.5} color={onStop() ? c.text : c.os(0.6)}>
             {stopLabel}

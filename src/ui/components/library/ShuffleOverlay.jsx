@@ -382,7 +382,17 @@ export default function ShuffleOverlay(props) {
           {summary()}
         </text>
 
-        <view>
+        <view
+          // The cards slide to the selected one, so the Magic Remote's cursor rings a card and a click
+          // focuses it and opens it (app/pointer.js).
+          pointerChildRing
+          onPointerChildClick={(i) => {
+            const c = cards()[i]
+            if (!c || pickerOpen()) return false
+            focusCard(c.i)
+            return true
+          }}
+        >
           <For each={cards()}>
             {(c) => {
               const on = () => c.i === active()
@@ -492,7 +502,7 @@ export default function ShuffleOverlay(props) {
           {overview()}
         </text>
 
-        <view>
+        <view onPointerChildOver={(i) => !pickerOpen() && focusAction(i)}>
           <For each={actions}>
             {(a) => (
               <view x={a.x} y={939} width={532} height={61}>
@@ -536,7 +546,7 @@ export default function ShuffleOverlay(props) {
             <view y={-pickTop()} width={680} height={pickerRows().length * 56}>
               <For each={pickerRows()}>
                 {(r) => (
-                  <view y={r.y} width={680} height={56}>
+                  <view y={r.y} width={680} height={56} onPointerOver={() => zone() === 'picker' && pick() !== r.i && setPick(r.i)}>
                     <view width={680} height={56} color={look().focusFill} alpha={zone() === 'picker' && pick() === r.i ? 1 : 0} />
                     <text
                       fontFamily={r.font}
