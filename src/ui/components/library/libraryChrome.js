@@ -254,7 +254,7 @@ const neon = (out) => {
     if (c.kind === 'search') return
     const edge = ringOf(c.kind === 'letter' || c.kind === 'crumb' ? c.ringBorder.w : 3, NEON_ACCENT)
     Object.assign(c, { fill: NEON_FOCUS, ring: true, ringBorder: edge })
-    if (c.kind === 'button') Object.assign(c, { iconOff: NEON_CYAN, inkOn: c.w === 44 ? INK : NEON_CYAN })
+    if (c.kind === 'button') Object.assign(c, { iconOff: NEON_CYAN, inkOn: NEON_CYAN })
     if (c.kind === 'pill' || c.kind === 'dockRow') Object.assign(c, { labelOn: NEON_CYAN, inkOn: NEON_CYAN, valueOff: NEON_CYAN })
   })
   return out
