@@ -826,8 +826,10 @@ export default function Library(props) {
       st.infoW = gridW
       st.tileOpts = {
         cellW: m.tileW, cellH: m.tileH, padX: m.padX, padY: m.padY, cardW: m.cardW, cardH: m.cardH, posterH: m.posterH,
-        showText: f.showText, ms: focusMs(200), slide: slideMs(200), artBg: '#ffffff0d', mutedIcon: '#ffffff4d',
+        showText: f.showText, ms: focusMs(200), slide: slideMs(200), artBg: t.os(0.05), mutedIcon: t.os(0.3),
         favY: 8, boldFont: uiFont('bold'), watchedBg: t.badgeWatched, onBadge: t.onBadge, textShadow: true,
+        // The names under the cards, and a card still loading, in the theme's foreground.
+        titleColor: t.onSurface, subColor: t.os(0.6), loadingBg: t.os(0.07),
         ...(neonOn() ? NEON_TILE : {}),
         // A focused card rings in the focus color, so the Focus Color setting reaches it.
         ring: { width: 3, color: colorNum(t.focus) },
@@ -1447,7 +1449,8 @@ export default function Library(props) {
       onRight={() => true}
       onBack={onBack}
     >
-      <view width={1920} height={1080} colorTl="#101010" colorTr="#161616" colorBl="#171717" colorBr="#171717" />
+      {/* The page runs from the theme's background at the top left to its surface. */}
+      <view width={1920} height={1080} colorTl={theme().background} colorTr={theme().surface} colorBl={theme().surface} colorBr={theme().surface} />
       <view>
         <Show when={backdropLayer()}>
           <BackdropLayer url={st.backdrop} blur={backdropLayer().blur} />
@@ -1492,7 +1495,7 @@ export default function Library(props) {
       <view x={st.gridX} y={st.viewTop} width={st.gridW} height={st.viewH} clipping>
         <view>
           <For each={st.skeleton}>
-            {(sk) => <view x={sk.x} y={sk.y} width={sk.w} height={sk.h} borderRadius={10} color="#ffffff24" />}
+            {(sk) => <view x={sk.x} y={sk.y} width={sk.w} height={sk.h} borderRadius={10} color={theme().os(0.14)} />}
           </For>
         </view>
         <view onCaptureEnter={hold.down} onCaptureEnterRelease={hold.up} onMenu={hold.menu}>
@@ -1550,7 +1553,7 @@ export default function Library(props) {
             x={st.gridX + st.gridW / 2}
             y={st.viewTop + st.viewH / 2 - 14}
             mountX={0.5}
-            color="#ffffff80"
+            color={theme().os(0.5)}
           >
             {st.emptyText}
           </text>
