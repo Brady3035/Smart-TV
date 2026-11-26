@@ -12,7 +12,7 @@ import {createSiloEvents, noteSiloPlaybackEnded} from './siloEvents';
 import {findSiloMoonbase} from './siloMoonbase';
 import {createSiloItems} from './siloItems';
 import {createSiloPlayback} from './siloPlayback';
-import {endSiloPlaybackControl, followSiloPlaybackControl, forgetSiloPlaybackControlServer} from './siloPlaybackControl';
+import {endSiloPlaybackControl, followSiloPlaybackControl} from './siloPlaybackControl';
 import {createSiloPlayerExtras, siloPlayingFile} from './siloPlayerExtras';
 import {createSiloTrackChoices} from './siloTrackChoices';
 import {siloItemMediaSources} from './siloMediaSources';
@@ -278,12 +278,9 @@ export const createSiloApi = ({getBaseUrl, getToken, getUserId, getDeviceInfo, p
 			appVersion: getDeviceInfo().appVersion,
 			live,
 			retire,
-			capabilities: () => call('/api/v2/playback/sessions/control/capabilities'),
 			ticket: () => call(`/api/v2/playback/sessions/${encodeURIComponent(sessionId)}/control/ws-ticket`, {
 				method: 'POST', body: {installation_id: installationId}
-			}),
-			// A token with no lifetime would renew every few seconds; Silo's four-hour limit is the only one then.
-			accessExpiresAt: () => (session()?.tokens?.lifetimeMs > 0 ? session().tokens.expiresAt : null)
+			})
 		}),
 		onSessionEnded: (sessionId) => endSiloPlaybackControl(base(), sessionId)
 	});
@@ -428,7 +425,6 @@ export const createSiloApi = ({getBaseUrl, getToken, getUserId, getDeviceInfo, p
 		logout: async () => {
 			const current = session();
 			if (!current) return;
-			forgetSiloPlaybackControlServer(base());
 			try {
 				await call('/api/v2/auth/logout', {method: 'POST', profile: false});
 			} catch (err) {
